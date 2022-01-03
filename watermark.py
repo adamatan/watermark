@@ -32,7 +32,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 
 """
-
+import os
 from os.path import splitext
 import subprocess as sp
 import argparse
@@ -72,6 +72,7 @@ def add_watermarks(args):
 
     add_watermark(args.image, intermedaite_filename, args.text, args.size, 30, "maroon")
     add_watermark(intermedaite_filename, result_filename, args.text, args.size, -30, "navy")
+    os.remove(intermedaite_filename)
 
 if __name__ == "__main__":
     args = get_args()
