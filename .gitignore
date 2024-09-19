@@ -129,3 +129,7 @@ dmypy.json
 .pyre/
 
 intermediate*
+.DS_Store
+*.png
+*.jpg
+*.jpeg
