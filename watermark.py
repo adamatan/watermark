@@ -37,12 +37,13 @@ from os.path import splitext
 import subprocess as sp
 import argparse
 
-def add_watermark(input_filename, output_filename, text, text_size, rotation_degrees, color_name):
+def add_watermark(input_filename, output_filename, text, text_size, rotation_degrees, color_name, opacity: float=0.4):
     """Adds a watermark to a single image and store the results in a new file."""
     command = f"""convert {input_filename} \\
     \\( -size {text_size} -background none -fill {color_name} -gravity center \\
     label:"{text}" -trim -rotate {rotation_degrees} \\
     -bordercolor none -border 10 \\
+    -channel A -evaluate multiply {opacity} \\
     -write mpr:wm +delete \\
     +clone -fill mpr:wm  -draw 'color 0,0 reset' \\) \\
     -compose over -composite \\
@@ -61,6 +62,7 @@ def get_args():
     parser.add_argument('image', help='The input image')
     parser.add_argument('text', help='The watermark text')
     parser.add_argument('--size', help='Text size', type=int, default=100)
+    parser.add_argument('--opacity', help='Text opacity, between 0 and 1', type=float, default=0.4)
     return parser.parse_args()
 
 def add_watermarks(args):
@@ -70,8 +72,8 @@ def add_watermarks(args):
     result_extension = '.jpeg'
     result_filename = f"watermark_{input_filename_base}{result_extension}"
 
-    add_watermark(args.image, intermedaite_filename, args.text, args.size, 30, "maroon")
-    add_watermark(intermedaite_filename, result_filename, args.text, args.size, -30, "navy")
+    add_watermark(args.image, intermedaite_filename, args.text, args.size, 30, "maroon", args.opacity)
+    add_watermark(intermedaite_filename, result_filename, args.text, args.size, -30, "navy", args.opacity)
     os.remove(intermedaite_filename)
 
 if __name__ == "__main__":
