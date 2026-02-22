@@ -5,9 +5,10 @@ import { renderWatermark } from "../lib/renderWatermark";
 interface PreviewCanvasProps {
   imageFile: ImageFile;
   settings: WatermarkSettings;
+  onClick?: () => void;
 }
 
-export function PreviewCanvas({ imageFile, settings }: PreviewCanvasProps) {
+export function PreviewCanvas({ imageFile, settings, onClick }: PreviewCanvasProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
   useEffect(() => {
@@ -25,7 +26,9 @@ export function PreviewCanvas({ imageFile, settings }: PreviewCanvasProps) {
         <canvas
           ref={canvasRef}
           className="max-w-full h-auto rounded-lg shadow"
-          style={{ maxHeight: "60vh" }}
+          style={{ maxHeight: "60vh", cursor: onClick ? "zoom-in" : undefined }}
+          onClick={onClick}
+          title={onClick ? "Click to inspect" : undefined}
         />
       </div>
     </div>
