@@ -43,7 +43,7 @@ export default function App() {
       // Deduplicate by name
       const existingNames = new Set(withoutSamples.map((img) => img.name));
       const uniqueNew = newImages.filter((img) => !existingNames.has(img.name));
-      return [...withoutSamples, ...uniqueNew];
+      return [...uniqueNew, ...withoutSamples];
     });
   }
 

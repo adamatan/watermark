@@ -1,37 +1,19 @@
 import { useRef, useState, useCallback, DragEvent, ChangeEvent } from "react";
 import type { ImageFile } from "../types";
 import { validateFile } from "../lib/fileValidation";
+import { loadImageFile } from "../lib/imageLoader";
+import { CameraModal } from "./CameraModal";
 
 interface DropZoneProps {
   onImagesAdd: (images: ImageFile[]) => void;
   hasImages: boolean;
 }
 
-function loadImageFile(file: File): Promise<ImageFile> {
-  return new Promise((resolve, reject) => {
-    const url = URL.createObjectURL(file);
-    const img = new Image();
-    img.onload = () => {
-      resolve({
-        file,
-        name: file.name.replace(/\.[^.]+$/, ""),
-        element: img,
-        width: img.naturalWidth,
-        height: img.naturalHeight,
-      });
-    };
-    img.onerror = () => {
-      URL.revokeObjectURL(url);
-      reject(new Error("Could not load image. The file may be corrupted."));
-    };
-    img.src = url;
-  });
-}
-
 export function DropZone({ onImagesAdd, hasImages }: DropZoneProps) {
   const inputRef = useRef<HTMLInputElement>(null);
   const [isDragOver, setIsDragOver] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [showCamera, setShowCamera] = useState(false);
   const errorTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   function showError(msg: string) {
@@ -94,7 +76,7 @@ export function DropZone({ onImagesAdd, hasImages }: DropZoneProps) {
     e.target.value = "";
   }
 
-  const borderClass = isDragOver
+  const uploadBorderClass = isDragOver
     ? "border-blue-500 bg-blue-50"
     : error
       ? "border-red-400 bg-red-50"
@@ -103,45 +85,85 @@ export function DropZone({ onImagesAdd, hasImages }: DropZoneProps) {
   if (hasImages) {
     return (
       <div>
-        <div
-          onClick={onClick}
-          onDragOver={onDragOver}
-          onDragLeave={onDragLeave}
-          onDrop={onDrop}
-          className={`flex items-center justify-center gap-2 px-4 py-3 rounded-lg border-2 border-dashed cursor-pointer transition-colors text-sm text-gray-500 ${borderClass}`}
-        >
-          <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
-          </svg>
-          Drop more images
+        <div className="flex gap-4">
+          <div
+            onClick={onClick}
+            onDragOver={onDragOver}
+            onDragLeave={onDragLeave}
+            onDrop={onDrop}
+            className={`flex flex-1 flex-col items-center justify-center h-36 rounded-2xl border-2 border-dashed cursor-pointer transition-colors ${uploadBorderClass}`}
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8 text-gray-400 mb-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+            </svg>
+            <p className="text-sm text-gray-600 font-medium">Add more images</p>
+          </div>
+          <div
+            onClick={() => setShowCamera(true)}
+            className="flex flex-1 flex-col items-center justify-center h-36 rounded-2xl border-2 border-dashed cursor-pointer transition-colors border-gray-300 bg-gray-50 hover:border-blue-400 hover:bg-blue-50"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8 text-gray-400 mb-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" />
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M15 13a3 3 0 11-6 0 3 3 0 016 0z" />
+            </svg>
+            <p className="text-sm text-gray-600 font-medium">Take a photo</p>
+          </div>
         </div>
         {error && <p className="mt-1 text-xs text-red-600">{error}</p>}
         <input ref={inputRef} type="file" accept="image/*" multiple className="hidden" onChange={onChange} />
+        {showCamera && (
+          <CameraModal
+            onCapture={(img) => { onImagesAdd([img]); setShowCamera(false); }}
+            onClose={() => setShowCamera(false)}
+          />
+        )}
       </div>
     );
   }
 
   return (
     <div className="w-full">
-      <div
-        onClick={onClick}
-        onDragOver={onDragOver}
-        onDragLeave={onDragLeave}
-        onDrop={onDrop}
-        className={`flex flex-col items-center justify-center w-full h-72 rounded-2xl border-2 border-dashed cursor-pointer transition-colors ${borderClass}`}
-      >
-        <svg xmlns="http://www.w3.org/2000/svg" className="h-12 w-12 text-gray-400 mb-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
-        </svg>
-        <p className="text-gray-600 font-medium">
-          Drop images here{" "}
-          <span className="hidden sm:inline">or click to upload</span>
-          <span className="sm:hidden">or tap to upload</span>
-        </p>
-        <p className="mt-1 text-sm text-gray-400">JPEG, PNG, WebP, BMP, TIFF, GIF — up to 50 MB each</p>
+      <div className="flex gap-4">
+        {/* Upload card */}
+        <div
+          onClick={onClick}
+          onDragOver={onDragOver}
+          onDragLeave={onDragLeave}
+          onDrop={onDrop}
+          className={`flex flex-1 flex-col items-center justify-center h-72 rounded-2xl border-2 border-dashed cursor-pointer transition-colors ${uploadBorderClass}`}
+        >
+          <svg xmlns="http://www.w3.org/2000/svg" className="h-12 w-12 text-gray-400 mb-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+          </svg>
+          <p className="text-gray-600 font-medium">
+            <span className="hidden sm:inline">Drop or click to upload</span>
+            <span className="sm:hidden">Tap to upload</span>
+          </p>
+          <p className="mt-1 text-sm text-gray-400 text-center px-4">JPEG, PNG, WebP, BMP, TIFF, GIF — up to 50 MB each</p>
+        </div>
+
+        {/* Camera card */}
+        <div
+          onClick={() => setShowCamera(true)}
+          className="flex flex-1 flex-col items-center justify-center h-72 rounded-2xl border-2 border-dashed cursor-pointer transition-colors border-gray-300 bg-gray-50 hover:border-blue-400 hover:bg-blue-50"
+        >
+          <svg xmlns="http://www.w3.org/2000/svg" className="h-12 w-12 text-gray-400 mb-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" />
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M15 13a3 3 0 11-6 0 3 3 0 016 0z" />
+          </svg>
+          <p className="text-gray-600 font-medium">Take a photo</p>
+          <p className="mt-1 text-sm text-gray-400">Use your camera</p>
+        </div>
       </div>
+
       {error && <p className="mt-2 text-sm text-red-600 text-center">{error}</p>}
       <input ref={inputRef} type="file" accept="image/*" multiple className="hidden" onChange={onChange} />
+      {showCamera && (
+        <CameraModal
+          onCapture={(img) => { onImagesAdd([img]); setShowCamera(false); }}
+          onClose={() => setShowCamera(false)}
+        />
+      )}
     </div>
   );
 }
