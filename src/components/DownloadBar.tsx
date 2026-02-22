@@ -2,7 +2,7 @@ import { useState } from "react";
 import JSZip from "jszip";
 import type { ImageFile, WatermarkSettings, ExportFormat } from "../types";
 import { exportAsBlob } from "../lib/exportImage";
-import { exportAsPdf } from "../lib/exportPdf";
+import { exportAsPdf, exportAllAsPdf } from "../lib/exportPdf";
 
 interface DownloadBarProps {
   imageFiles: ImageFile[];
@@ -35,22 +35,15 @@ async function downloadSingle(
 async function downloadZip(
   imageFiles: ImageFile[],
   settings: WatermarkSettings,
-  format: "png" | "jpeg" | "pdf"
+  format: "png" | "jpeg"
 ) {
   const zip = new JSZip();
-  const ext = format === "jpeg" ? "jpg" : format;
+  const ext = format === "jpeg" ? "jpg" : "png";
 
   await Promise.all(
     imageFiles.map(async (imageFile) => {
-      const filename = `${imageFile.name}-watermarked.${ext}`;
-      if (format === "pdf") {
-        // Render to a blob by creating a temporary canvas + jsPDF in-memory
-        const blob = await exportAsBlob(imageFile, settings, "png");
-        zip.file(filename.replace(".pdf", ".png"), blob);
-      } else {
-        const blob = await exportAsBlob(imageFile, settings, format);
-        zip.file(filename, blob);
-      }
+      const blob = await exportAsBlob(imageFile, settings, format);
+      zip.file(`${imageFile.name}-watermarked.${ext}`, blob);
     })
   );
 
@@ -66,10 +59,10 @@ export function DownloadBar({ imageFiles, settings }: DownloadBarProps) {
     if (exporting || imageFiles.length === 0) return;
     setExporting(format);
     try {
-      if (multi && format !== "pdf") {
+      if (multi && format === "pdf") {
+        exportAllAsPdf(imageFiles, settings, "watermarked-images.pdf");
+      } else if (multi) {
         await downloadZip(imageFiles, settings, format);
-      } else if (multi && format === "pdf") {
-        await downloadZip(imageFiles, settings, "pdf");
       } else {
         await downloadSingle(imageFiles[0], settings, format);
       }
@@ -90,7 +83,7 @@ export function DownloadBar({ imageFiles, settings }: DownloadBarProps) {
   return (
     <div className="bg-white rounded-2xl border border-gray-200 p-4 shadow-sm space-y-2">
       <p className="text-xs font-semibold text-gray-500 uppercase tracking-wider">
-        Download {multi ? `(${imageFiles.length} images → ZIP)` : ""}
+        Download {multi ? `(${imageFiles.length} images → ZIP / single PDF)` : ""}
       </p>
       <div className="flex gap-2">
         {formats.map(({ format, label }) => {
