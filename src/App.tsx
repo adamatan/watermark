@@ -72,18 +72,21 @@ export default function App() {
 
       {/* Main */}
       <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 py-8">
-        <div className="flex flex-col lg:flex-row gap-6 items-start">
+        <div className="flex flex-col gap-6">
 
-          {/* Left column — controls */}
-          <div className="w-full lg:w-80 flex-shrink-0 space-y-4">
+          {/* Full-width drop zone */}
+          <DropZone onImagesAdd={addImages} hasImages={hasRealImages} />
 
-            <DropZone onImagesAdd={addImages} hasImages={hasRealImages} />
+          {/* Two-column layout: controls + image grid */}
+          {hasImages && (
+            <div className="flex flex-col lg:flex-row gap-6 items-start">
 
-            {hasImages && (
-              <>
+              {/* Left column — controls */}
+              <div className="w-full lg:w-80 flex-shrink-0 space-y-4">
+
                 <DownloadBar imageFiles={imageFiles} settings={settings} />
 
-                {/* Watermark text — always visible */}
+                {/* Watermark text */}
                 <div className="bg-white rounded-2xl border border-gray-200 p-4 shadow-sm space-y-2">
                   <label className="text-sm font-medium text-gray-700">Watermark text</label>
                   <textarea
@@ -96,28 +99,27 @@ export default function App() {
                 </div>
 
                 <SettingsPanel settings={settings} onChange={updateSettings} />
-              </>
-            )}
-          </div>
+              </div>
 
-          {/* Right column — image grid */}
-          {hasImages && (
-            <div className="flex-1 min-w-0">
-              <div
-                className="grid gap-6"
-                style={{ gridTemplateColumns: "repeat(auto-fill, minmax(min(100%, 380px), 1fr))" }}
-              >
-                {imageFiles.map((imageFile, index) => (
-                  <ImageCard
-                    key={`${imageFile.name}-${index}`}
-                    imageFile={imageFile}
-                    settings={debouncedSettings}
-                    onRemove={() => removeImage(index)}
-                  />
-                ))}
+              {/* Right column — image grid */}
+              <div className="flex-1 min-w-0">
+                <div
+                  className="grid gap-6"
+                  style={{ gridTemplateColumns: "repeat(auto-fill, minmax(min(100%, 380px), 1fr))" }}
+                >
+                  {imageFiles.map((imageFile, index) => (
+                    <ImageCard
+                      key={`${imageFile.name}-${index}`}
+                      imageFile={imageFile}
+                      settings={debouncedSettings}
+                      onRemove={() => removeImage(index)}
+                    />
+                  ))}
+                </div>
               </div>
             </div>
           )}
+
         </div>
       </main>
 
