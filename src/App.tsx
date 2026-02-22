@@ -37,7 +37,14 @@ export default function App() {
   }, []);
 
   function addImages(newImages: ImageFile[]) {
-    setImageFiles((prev) => [...prev, ...newImages]);
+    setImageFiles((prev) => {
+      // Remove sample images (file.size === 0) when the user uploads real files
+      const withoutSamples = prev.filter((img) => img.file.size > 0);
+      // Deduplicate by name
+      const existingNames = new Set(withoutSamples.map((img) => img.name));
+      const uniqueNew = newImages.filter((img) => !existingNames.has(img.name));
+      return [...withoutSamples, ...uniqueNew];
+    });
   }
 
   function removeImage(index: number) {
@@ -45,6 +52,8 @@ export default function App() {
   }
 
   const hasImages = imageFiles.length > 0;
+  // Only count user-uploaded files; the sample (file.size === 0) doesn't trigger compact mode
+  const hasRealImages = imageFiles.some((img) => img.file.size > 0);
 
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col">
@@ -68,7 +77,7 @@ export default function App() {
           {/* Left column — controls */}
           <div className="w-full lg:w-80 flex-shrink-0 space-y-4">
 
-            <DropZone onImagesAdd={addImages} hasImages={hasImages} />
+            <DropZone onImagesAdd={addImages} hasImages={hasRealImages} />
 
             {hasImages && (
               <>
