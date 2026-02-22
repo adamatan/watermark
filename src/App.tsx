@@ -31,7 +31,7 @@ export default function App() {
   const debouncedSettings = useDebouncedValue(settings, DEBOUNCE_MS);
 
   useEffect(() => {
-    loadImageFromUrl("/sample.png", "sample.png")
+    loadImageFromUrl(`${import.meta.env.BASE_URL}sample.png`, "sample.png")
       .then((img) => setImageFiles([img]))
       .catch(() => {});
   }, []);
