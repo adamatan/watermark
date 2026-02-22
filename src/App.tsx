@@ -86,18 +86,6 @@ export default function App() {
 
                 <DownloadBar imageFiles={imageFiles} settings={settings} />
 
-                {/* Watermark text */}
-                <div className="bg-white rounded-2xl border border-gray-200 p-4 shadow-sm space-y-2">
-                  <label className="text-sm font-medium text-gray-700">Watermark text</label>
-                  <textarea
-                    value={settings.text}
-                    onChange={(e) => updateSettings({ text: e.target.value })}
-                    placeholder="Enter watermark text"
-                    rows={3}
-                    className="w-full border border-gray-300 rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 resize-y"
-                  />
-                </div>
-
                 <SettingsPanel settings={settings} onChange={updateSettings} />
               </div>
 

@@ -38,3 +38,42 @@ export function makeDefaultSettings(): WatermarkSettings {
 
 export const DEBOUNCE_MS = 150;
 export const JPEG_QUALITY = 0.92;
+
+export type PresetName = "Blue" | "Green" | "Red" | "Subtle";
+
+type PresetOverrides = Omit<WatermarkSettings, "text" | "noiseEnabled">;
+
+export const PRESETS: Record<PresetName, PresetOverrides> = {
+  Blue: {
+    color: "#1714CC",
+    opacity: 0.5,
+    fontSize: 36,
+    rotation: 26,
+    spacing: 100,
+    fontFamily: "Arial",
+  },
+  Green: {
+    color: "#16A34A",
+    opacity: 0.5,
+    fontSize: 36,
+    rotation: 26,
+    spacing: 100,
+    fontFamily: "Arial",
+  },
+  Red: {
+    color: "#DC2626",
+    opacity: 0.5,
+    fontSize: 36,
+    rotation: 26,
+    spacing: 100,
+    fontFamily: "Arial",
+  },
+  Subtle: {
+    color: "#6B7280",
+    opacity: 0.18,
+    fontSize: 28,
+    rotation: 26,
+    spacing: 130,
+    fontFamily: "Arial",
+  },
+};
