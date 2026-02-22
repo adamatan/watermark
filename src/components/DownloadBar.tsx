@@ -2,7 +2,7 @@ import { useState } from "react";
 import JSZip from "jszip";
 import type { ImageFile, WatermarkSettings, ExportFormat } from "../types";
 import { exportAsBlob } from "../lib/exportImage";
-import { exportAsPdf } from "../lib/exportPdf";
+import { exportAsPdf, exportAllAsPdf } from "../lib/exportPdf";
 
 interface DownloadBarProps {
   imageFiles: ImageFile[];
@@ -69,7 +69,7 @@ export function DownloadBar({ imageFiles, settings }: DownloadBarProps) {
       if (multi && format !== "pdf") {
         await downloadZip(imageFiles, settings, format);
       } else if (multi && format === "pdf") {
-        await downloadZip(imageFiles, settings, "pdf");
+        exportAllAsPdf(imageFiles, settings, "watermarked-images.pdf");
       } else {
         await downloadSingle(imageFiles[0], settings, format);
       }
@@ -90,7 +90,7 @@ export function DownloadBar({ imageFiles, settings }: DownloadBarProps) {
   return (
     <div className="bg-white rounded-2xl border border-gray-200 p-4 shadow-sm space-y-2">
       <p className="text-xs font-semibold text-gray-500 uppercase tracking-wider">
-        Download {multi ? `(${imageFiles.length} images → ZIP)` : ""}
+        Download {multi ? `(${imageFiles.length} images)` : ""}
       </p>
       <div className="flex gap-2">
         {formats.map(({ format, label }) => {
