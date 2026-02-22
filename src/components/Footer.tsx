@@ -1,4 +1,4 @@
-const GITHUB_URL = "https://github.com/adam-matan/watermark-fe";
+const GITHUB_URL = "https://github.com/adamatan/watermark";
 
 export function Footer() {
   return (
