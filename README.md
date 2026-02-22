@@ -1,5 +1,7 @@
 # Watermark
 
+**Live: https://adamatan.github.io/watermark/**
+
 A privacy-first web app for watermarking sensitive images (passports, IDs, documents).
 
 **All processing happens locally in your browser. Your files never leave your device.**
