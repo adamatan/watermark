@@ -27,7 +27,7 @@ function loadImageFromUrl(url: string, name: string): Promise<ImageFile> {
 
 export default function App() {
   const [imageFiles, setImageFiles] = useState<ImageFile[]>([]);
-  const { settings, updateSettings } = useWatermarkSettings();
+  const { settings, updateLayerSettings, updateGlobalSettings, enableLayer2, disableLayer2, applyDoublePreset } = useWatermarkSettings();
   const debouncedSettings = useDebouncedValue(settings, DEBOUNCE_MS);
 
   useEffect(() => {
@@ -87,7 +87,14 @@ export default function App() {
 
                 <DownloadBar imageFiles={imageFiles} settings={settings} />
 
-                <SettingsPanel settings={settings} onChange={updateSettings} />
+                <SettingsPanel
+                  settings={settings}
+                  onLayerChange={updateLayerSettings}
+                  onGlobalChange={updateGlobalSettings}
+                  onEnableLayer2={enableLayer2}
+                  onDisableLayer2={disableLayer2}
+                  onApplyDoublePreset={applyDoublePreset}
+                />
               </div>
 
               {/* Right column — image grid */}

@@ -1,5 +1,106 @@
-import type { WatermarkSettings } from "../types";
+import type { LayerSettings, WatermarkSettings } from "../types";
 import { addNoise } from "./addNoise";
+
+function drawLayer(
+  ctx: CanvasRenderingContext2D,
+  layer: LayerSettings,
+  w: number,
+  h: number
+): void {
+  if (!layer.text.trim()) return;
+
+  const radians = (layer.rotation * Math.PI) / 180;
+
+  ctx.save();
+  ctx.font = `${layer.fontSize}px "${layer.fontFamily}"`;
+  ctx.fillStyle = layer.color;
+  ctx.globalAlpha = layer.opacity;
+  ctx.textAlign = "center";
+  ctx.textBaseline = "middle";
+
+  const lines = layer.text.split("\n");
+  const lineHeight = layer.fontSize * 1.2;
+  const blockHeight = lineHeight * lines.length;
+  const maxLineWidth = Math.max(...lines.map((l) => ctx.measureText(l).width));
+
+  const cellWidth = maxLineWidth + layer.spacing;
+  const cellHeight = blockHeight + layer.spacing;
+
+  const diagonal = Math.sqrt(w * w + h * h);
+  const startX = w / 2 - diagonal;
+  const startY = h / 2 - diagonal;
+  const endX = w / 2 + diagonal;
+  const endY = h / 2 + diagonal;
+
+  for (let y = startY; y < endY; y += cellHeight) {
+    for (let x = startX; x < endX; x += cellWidth) {
+      ctx.save();
+      ctx.translate(x, y);
+      ctx.rotate(radians);
+      const blockTop = -blockHeight / 2 + lineHeight / 2;
+      lines.forEach((line, i) => {
+        ctx.fillText(line, 0, blockTop + i * lineHeight);
+      });
+      if (layer.borderEnabled) {
+        const pad = 8;
+        ctx.strokeStyle = layer.color;
+        ctx.lineWidth = layer.fontSize * 0.08;
+        ctx.strokeRect(
+          -maxLineWidth / 2 - pad,
+          -blockHeight / 2 - pad,
+          maxLineWidth + pad * 2,
+          blockHeight + pad * 2
+        );
+      }
+      ctx.restore();
+    }
+  }
+
+  ctx.restore();
+  ctx.globalAlpha = 1.0;
+}
+
+function drawLayerOnOffscreen(
+  offCtx: CanvasRenderingContext2D,
+  layer: LayerSettings,
+  w: number,
+  h: number
+): void {
+  if (!layer.text.trim()) return;
+
+  const radians = (layer.rotation * Math.PI) / 180;
+  const lines = layer.text.split("\n");
+  const lineHeight = layer.fontSize * 1.2;
+  const blockHeight = lineHeight * lines.length;
+
+  offCtx.font = `${layer.fontSize}px "${layer.fontFamily}"`;
+  offCtx.fillStyle = "#000";
+  offCtx.textAlign = "center";
+  offCtx.textBaseline = "middle";
+
+  const maxLineWidth = Math.max(...lines.map((l) => offCtx.measureText(l).width));
+  const cellWidth = maxLineWidth + layer.spacing;
+  const cellHeight = blockHeight + layer.spacing;
+
+  const diagonal = Math.sqrt(w * w + h * h);
+  const startX = w / 2 - diagonal;
+  const startY = h / 2 - diagonal;
+  const endX = w / 2 + diagonal;
+  const endY = h / 2 + diagonal;
+
+  for (let y = startY; y < endY; y += cellHeight) {
+    for (let x = startX; x < endX; x += cellWidth) {
+      offCtx.save();
+      offCtx.translate(x, y);
+      offCtx.rotate(radians);
+      const blockTop = -blockHeight / 2 + lineHeight / 2;
+      lines.forEach((line, i) => {
+        offCtx.fillText(line, 0, blockTop + i * lineHeight);
+      });
+      offCtx.restore();
+    }
+  }
+}
 
 export function renderWatermark(
   canvas: HTMLCanvasElement,
@@ -15,98 +116,33 @@ export function renderWatermark(
   const ctx = canvas.getContext("2d");
   if (!ctx) return;
 
-  // Draw the source image
   ctx.drawImage(image, 0, 0);
 
-  if (!settings.text.trim()) {
-    if (settings.noiseLevel > 0) addNoise(ctx, w, h, settings.noiseLevel, undefined, 0);
-    return;
+  const activeLayers = settings.layers.filter((l): l is LayerSettings => l !== null);
+
+  for (const layer of activeLayers) {
+    drawLayer(ctx, layer, w, h);
   }
-
-  const radians = (settings.rotation * Math.PI) / 180;
-
-  ctx.save();
-  ctx.font = `${settings.fontSize}px "${settings.fontFamily}"`;
-  ctx.fillStyle = settings.color;
-  ctx.globalAlpha = settings.opacity;
-  ctx.textAlign = "center";
-  ctx.textBaseline = "middle";
-
-  const lines = settings.text.split("\n");
-  const lineHeight = settings.fontSize * 1.2;
-  const blockHeight = lineHeight * lines.length;
-  const maxLineWidth = Math.max(...lines.map((l) => ctx.measureText(l).width));
-
-  const cellWidth = maxLineWidth + settings.spacing;
-  const cellHeight = blockHeight + settings.spacing;
-
-  // Cover the full diagonal so every rotation angle is filled
-  const diagonal = Math.sqrt(w * w + h * h);
-  const startX = w / 2 - diagonal;
-  const startY = h / 2 - diagonal;
-  const endX = w / 2 + diagonal;
-  const endY = h / 2 + diagonal;
-
-  for (let y = startY; y < endY; y += cellHeight) {
-    for (let x = startX; x < endX; x += cellWidth) {
-      ctx.save();
-      ctx.translate(x, y);
-      ctx.rotate(radians);
-      // Center the block vertically, then draw each line
-      const blockTop = -blockHeight / 2 + lineHeight / 2;
-      lines.forEach((line, i) => {
-        ctx.fillText(line, 0, blockTop + i * lineHeight);
-      });
-      if (settings.borderEnabled) {
-        const pad = 8;
-        ctx.strokeStyle = settings.color;
-        ctx.lineWidth = settings.fontSize * 0.08;
-        ctx.strokeRect(
-          -maxLineWidth / 2 - pad,
-          -blockHeight / 2 - pad,
-          maxLineWidth + pad * 2,
-          blockHeight + pad * 2
-        );
-      }
-      ctx.restore();
-    }
-  }
-
-  ctx.restore();
-  ctx.globalAlpha = 1.0;
 
   if (settings.noiseLevel > 0 || settings.noiseBoost > 0) {
     let boostMask: Uint8ClampedArray | undefined;
 
     if (settings.noiseBoost > 0) {
-      // Render watermark text to an offscreen canvas (full opacity, no image)
       const offscreen = document.createElement("canvas");
       offscreen.width = w;
       offscreen.height = h;
       const offCtx = offscreen.getContext("2d")!;
-      offCtx.font = `${settings.fontSize}px "${settings.fontFamily}"`;
-      offCtx.fillStyle = "#000";
-      offCtx.textAlign = "center";
-      offCtx.textBaseline = "middle";
-      for (let y = startY; y < endY; y += cellHeight) {
-        for (let x = startX; x < endX; x += cellWidth) {
-          offCtx.save();
-          offCtx.translate(x, y);
-          offCtx.rotate(radians);
-          const blockTop = -blockHeight / 2 + lineHeight / 2;
-          lines.forEach((line, i) => {
-            offCtx.fillText(line, 0, blockTop + i * lineHeight);
-          });
-          offCtx.restore();
-        }
+
+      for (const layer of activeLayers) {
+        drawLayerOnOffscreen(offCtx, layer, w, h);
       }
 
-      // Blur to create a soft proximity halo around the text
+      const maxFontSize = Math.max(...activeLayers.map((l) => l.fontSize), 36);
       const blurCanvas = document.createElement("canvas");
       blurCanvas.width = w;
       blurCanvas.height = h;
       const blurCtx = blurCanvas.getContext("2d")!;
-      blurCtx.filter = `blur(${settings.fontSize}px)`;
+      blurCtx.filter = `blur(${maxFontSize}px)`;
       blurCtx.drawImage(offscreen, 0, 0);
       boostMask = blurCtx.getImageData(0, 0, w, h).data;
     }

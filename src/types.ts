@@ -5,7 +5,7 @@ export type FontFamily =
   | "Georgia"
   | "Verdana";
 
-export interface WatermarkSettings {
+export interface LayerSettings {
   text: string;
   color: string;
   opacity: number;
@@ -13,9 +13,13 @@ export interface WatermarkSettings {
   rotation: number;
   spacing: number;
   fontFamily: FontFamily;
+  borderEnabled: boolean;
+}
+
+export interface WatermarkSettings {
+  layers: [LayerSettings, LayerSettings | null];
   noiseLevel: number;
   noiseBoost: number;
-  borderEnabled: boolean;
 }
 
 export interface ImageFile {
