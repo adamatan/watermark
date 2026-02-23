@@ -85,7 +85,7 @@ export function DropZone({ onImagesAdd, hasImages }: DropZoneProps) {
   if (hasImages) {
     return (
       <div>
-        <div className="flex gap-4">
+        <div className="flex items-center gap-4">
           <div
             onClick={onClick}
             onDragOver={onDragOver}
@@ -98,6 +98,7 @@ export function DropZone({ onImagesAdd, hasImages }: DropZoneProps) {
             </svg>
             <p className="text-sm text-gray-600 font-medium">Add more images</p>
           </div>
+          <span className="text-2xl text-gray-400 font-semibold shrink-0 px-4">Or</span>
           <div
             onClick={() => setShowCamera(true)}
             className="flex flex-1 flex-col items-center justify-center h-36 rounded-2xl border-2 cursor-pointer transition-colors border-gray-300 bg-gray-50 hover:border-blue-400 hover:bg-blue-50"
@@ -123,7 +124,7 @@ export function DropZone({ onImagesAdd, hasImages }: DropZoneProps) {
 
   return (
     <div className="w-full">
-      <div className="flex gap-4">
+      <div className="flex items-center gap-4">
         {/* Upload card */}
         <div
           onClick={onClick}
@@ -141,6 +142,8 @@ export function DropZone({ onImagesAdd, hasImages }: DropZoneProps) {
           </p>
           <p className="mt-1 text-sm text-gray-400 text-center px-4">JPEG, PNG, WebP, BMP, TIFF, GIF, PDF — up to 50 MB each</p>
         </div>
+
+        <span className="text-2xl text-gray-400 font-semibold shrink-0 px-4">Or</span>
 
         {/* Camera card */}
         <div
