@@ -13,7 +13,7 @@ export function validateFile(file: File): ValidationResult {
     return {
       valid: false,
       error:
-        "Unsupported format. Please upload a JPEG, PNG, WebP, BMP, TIFF, or GIF.",
+        "Unsupported format. Please upload a JPEG, PNG, WebP, BMP, TIFF, GIF, or PDF.",
     };
   }
   return { valid: true };

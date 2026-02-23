@@ -9,6 +9,7 @@ export const ACCEPTED_MIME_TYPES = [
   "image/bmp",
   "image/tiff",
   "image/gif",
+  "application/pdf",
 ] as const;
 
 export const FONT_FAMILIES: FontFamily[] = [

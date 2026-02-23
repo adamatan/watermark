@@ -1,8 +1,18 @@
 import * as UTIF from "utif2";
+import * as pdfjsLib from "pdfjs-dist";
 import type { ImageFile } from "../types";
+
+pdfjsLib.GlobalWorkerOptions.workerSrc = new URL(
+  "pdfjs-dist/build/pdf.worker.min.mjs",
+  import.meta.url
+).toString();
 
 function isTiff(file: File): boolean {
   return file.type === "image/tiff";
+}
+
+function isPdf(file: File): boolean {
+  return file.type === "application/pdf";
 }
 
 function decodeTiff(file: File): Promise<string> {
@@ -42,13 +52,13 @@ function decodeTiff(file: File): Promise<string> {
   });
 }
 
-function loadFromUrl(file: File, url: string): Promise<ImageFile> {
+function loadFromUrl(file: File, url: string, name?: string): Promise<ImageFile> {
   return new Promise((resolve, reject) => {
     const img = new Image();
     img.onload = () => {
       resolve({
         file,
-        name: file.name.replace(/\.[^.]+$/, ""),
+        name: name ?? file.name.replace(/\.[^.]+$/, ""),
         element: img,
         width: img.naturalWidth,
         height: img.naturalHeight,
@@ -62,11 +72,43 @@ function loadFromUrl(file: File, url: string): Promise<ImageFile> {
   });
 }
 
-export async function loadImageFile(file: File): Promise<ImageFile> {
+async function loadPdfFile(file: File): Promise<ImageFile[]> {
+  const arrayBuffer = await file.arrayBuffer();
+  const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
+  const baseName = file.name.replace(/\.pdf$/i, "");
+  const results: ImageFile[] = [];
+
+  for (let i = 1; i <= pdf.numPages; i++) {
+    const page = await pdf.getPage(i);
+    // Render at 2x scale for good quality
+    const scale = 2;
+    const viewport = page.getViewport({ scale });
+
+    const canvas = document.createElement("canvas");
+    canvas.width = viewport.width;
+    canvas.height = viewport.height;
+    const ctx = canvas.getContext("2d");
+    if (!ctx) throw new Error("Could not create canvas context.");
+
+    await page.render({ canvasContext: ctx, viewport }).promise;
+
+    const dataUrl = canvas.toDataURL("image/png");
+    const pageName = pdf.numPages === 1 ? baseName : `${baseName} p${i}`;
+    const imageFile = await loadFromUrl(file, dataUrl, pageName);
+    results.push(imageFile);
+  }
+
+  return results;
+}
+
+export async function loadImageFile(file: File): Promise<ImageFile[]> {
+  if (isPdf(file)) {
+    return loadPdfFile(file);
+  }
   if (isTiff(file)) {
     const dataUrl = await decodeTiff(file);
-    return loadFromUrl(file, dataUrl);
+    return [await loadFromUrl(file, dataUrl)];
   }
   const url = URL.createObjectURL(file);
-  return loadFromUrl(file, url);
+  return [await loadFromUrl(file, url)];
 }

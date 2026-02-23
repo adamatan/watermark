@@ -59,7 +59,7 @@ export function CameraModal({ onCapture, onClose }: CameraModalProps) {
         if (!blob) return;
         const file = new File([blob], `camera-${Date.now()}.jpg`, { type: "image/jpeg" });
         try {
-          const imageFile = await loadImageFile(file);
+          const [imageFile] = await loadImageFile(file);
           onCapture(imageFile);
           onClose();
         } catch {

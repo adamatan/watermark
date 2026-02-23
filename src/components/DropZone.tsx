@@ -35,8 +35,8 @@ export function DropZone({ onImagesAdd, hasImages }: DropZoneProps) {
             return;
           }
           try {
-            const imageFile = await loadImageFile(file);
-            loaded.push(imageFile);
+            const imageFiles = await loadImageFile(file);
+            loaded.push(...imageFiles);
           } catch (e) {
             errors.push(`${file.name}: ${(e as Error).message}`);
           }
@@ -110,7 +110,7 @@ export function DropZone({ onImagesAdd, hasImages }: DropZoneProps) {
           </div>
         </div>
         {error && <p className="mt-1 text-xs text-red-600">{error}</p>}
-        <input ref={inputRef} type="file" accept="image/*" multiple className="hidden" onChange={onChange} />
+        <input ref={inputRef} type="file" accept="image/*,application/pdf" multiple className="hidden" onChange={onChange} />
         {showCamera && (
           <CameraModal
             onCapture={(img) => { onImagesAdd([img]); setShowCamera(false); }}
@@ -139,7 +139,7 @@ export function DropZone({ onImagesAdd, hasImages }: DropZoneProps) {
             <span className="hidden sm:inline">Drop or click to upload</span>
             <span className="sm:hidden">Tap to upload</span>
           </p>
-          <p className="mt-1 text-sm text-gray-400 text-center px-4">JPEG, PNG, WebP, BMP, TIFF, GIF — up to 50 MB each</p>
+          <p className="mt-1 text-sm text-gray-400 text-center px-4">JPEG, PNG, WebP, BMP, TIFF, GIF, PDF — up to 50 MB each</p>
         </div>
 
         {/* Camera card */}
@@ -157,7 +157,7 @@ export function DropZone({ onImagesAdd, hasImages }: DropZoneProps) {
       </div>
 
       {error && <p className="mt-2 text-sm text-red-600 text-center">{error}</p>}
-      <input ref={inputRef} type="file" accept="image/*" multiple className="hidden" onChange={onChange} />
+      <input ref={inputRef} type="file" accept="image/*,application/pdf" multiple className="hidden" onChange={onChange} />
       {showCamera && (
         <CameraModal
           onCapture={(img) => { onImagesAdd([img]); setShowCamera(false); }}
