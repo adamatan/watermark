@@ -14,7 +14,10 @@ export function PreviewCanvas({ imageFile, settings, onClick }: PreviewCanvasPro
   useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
-    renderWatermark(canvas, imageFile.element, settings);
+    const raf = requestAnimationFrame(() => {
+      renderWatermark(canvas, imageFile.element, settings);
+    });
+    return () => cancelAnimationFrame(raf);
   }, [imageFile, settings]);
 
   return (

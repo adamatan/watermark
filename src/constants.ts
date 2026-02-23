@@ -20,7 +20,7 @@ export const FONT_FAMILIES: FontFamily[] = [
   "Verdana",
 ];
 
-export const DEBOUNCE_MS = 150;
+export const DEBOUNCE_MS = 30;
 export const JPEG_QUALITY = 0.92;
 
 export type PresetName = "Default" | "Double" | "Subtle" | "Stamp";
@@ -38,6 +38,8 @@ export const PRESETS: Record<Exclude<PresetName, "Double">, PresetOverrides> = {
     fontSize: 36,
     rotation: 26,
     spacing: 100,
+    offsetX: 0,
+    offsetY: 0,
     fontFamily: "Arial",
     borderEnabled: false,
   },
@@ -47,6 +49,8 @@ export const PRESETS: Record<Exclude<PresetName, "Double">, PresetOverrides> = {
     fontSize: 36,
     rotation: 26,
     spacing: 60,
+    offsetX: 0,
+    offsetY: 0,
     fontFamily: "Arial",
     borderEnabled: false,
   },
@@ -56,6 +60,8 @@ export const PRESETS: Record<Exclude<PresetName, "Double">, PresetOverrides> = {
     fontSize: 50,
     rotation: 26,
     spacing: 50,
+    offsetX: 0,
+    offsetY: 0,
     fontFamily: "Arial",
     borderEnabled: true,
   },
@@ -74,6 +80,8 @@ export const DOUBLE_PRESET: DualPreset = {
     fontSize: 36,
     rotation: 26,
     spacing: 100,
+    offsetX: 0,
+    offsetY: 0,
     fontFamily: "Arial",
     borderEnabled: false,
   },
@@ -83,6 +91,8 @@ export const DOUBLE_PRESET: DualPreset = {
     fontSize: 40,
     rotation: -40,
     spacing: 120,
+    offsetX: 0,
+    offsetY: 0,
     fontFamily: "Courier New",
     borderEnabled: false,
   },
@@ -143,6 +153,8 @@ export function makeDefaultLayerSettings(): LayerSettings {
     fontSize: 36,
     rotation: 26,
     spacing: 100,
+    offsetX: 0,
+    offsetY: 0,
     fontFamily: "Arial",
     borderEnabled: false,
   };

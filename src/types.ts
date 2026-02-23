@@ -12,6 +12,8 @@ export interface LayerSettings {
   fontSize: number;
   rotation: number;
   spacing: number;
+  offsetX: number;
+  offsetY: number;
   fontFamily: FontFamily;
   borderEnabled: boolean;
 }

@@ -27,10 +27,10 @@ function drawLayer(
   const cellHeight = blockHeight + layer.spacing;
 
   const diagonal = Math.sqrt(w * w + h * h);
-  const startX = w / 2 - diagonal;
-  const startY = h / 2 - diagonal;
-  const endX = w / 2 + diagonal;
-  const endY = h / 2 + diagonal;
+  const startX = w / 2 - diagonal + layer.offsetX;
+  const startY = h / 2 - diagonal + layer.offsetY;
+  const endX = w / 2 + diagonal + layer.offsetX;
+  const endY = h / 2 + diagonal + layer.offsetY;
 
   for (let y = startY; y < endY; y += cellHeight) {
     for (let x = startX; x < endX; x += cellWidth) {
@@ -83,10 +83,10 @@ function drawLayerOnOffscreen(
   const cellHeight = blockHeight + layer.spacing;
 
   const diagonal = Math.sqrt(w * w + h * h);
-  const startX = w / 2 - diagonal;
-  const startY = h / 2 - diagonal;
-  const endX = w / 2 + diagonal;
-  const endY = h / 2 + diagonal;
+  const startX = w / 2 - diagonal + layer.offsetX;
+  const startY = h / 2 - diagonal + layer.offsetY;
+  const endX = w / 2 + diagonal + layer.offsetX;
+  const endY = h / 2 + diagonal + layer.offsetY;
 
   for (let y = startY; y < endY; y += cellHeight) {
     for (let x = startX; x < endX; x += cellWidth) {

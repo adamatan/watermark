@@ -19,13 +19,24 @@ interface SliderRowProps {
   step?: number;
   unit: string;
   onChange: (value: number) => void;
+  tooltip?: string;
 }
 
-function SliderRow({ label, value, min, max, step = 1, unit, onChange }: SliderRowProps) {
+function SliderRow({ label, value, min, max, step = 1, unit, onChange, tooltip }: SliderRowProps) {
   return (
     <div className="space-y-1">
       <div className="flex justify-between items-baseline">
-        <label className="text-xs font-medium text-gray-600">{label}</label>
+        <div className="flex items-center gap-1">
+          <label className="text-xs font-medium text-gray-600">{label}</label>
+          {tooltip && (
+            <span className="relative group">
+              <span className="inline-flex items-center justify-center w-3.5 h-3.5 rounded-full bg-gray-200 text-gray-500 text-[9px] font-bold cursor-help leading-none select-none">?</span>
+              <span className="absolute bottom-full left-1/2 -translate-x-1/2 mb-1.5 w-48 px-2 py-1.5 text-xs text-white bg-gray-700 rounded shadow-lg opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-10 text-center whitespace-normal">
+                {tooltip}
+              </span>
+            </span>
+          )}
+        </div>
         <span className="text-xs text-gray-500 tabular-nums">{value}{unit}</span>
       </div>
       <input
@@ -257,6 +268,24 @@ export function SettingsPanel({ settings, onLayerChange, onGlobalChange, onEnabl
                 onChange={(v) => onLayerChange(effectiveTab, { spacing: v })}
               />
 
+              <SliderRow
+                label="Horizontal shift"
+                value={currentLayer.offsetX}
+                min={-500}
+                max={500}
+                unit="px"
+                onChange={(v) => onLayerChange(effectiveTab, { offsetX: v })}
+              />
+
+              <SliderRow
+                label="Vertical shift"
+                value={currentLayer.offsetY}
+                min={-500}
+                max={500}
+                unit="px"
+                onChange={(v) => onLayerChange(effectiveTab, { offsetY: v })}
+              />
+
               {/* Font family */}
               <div className="space-y-1">
                 <label className="text-xs font-medium text-gray-600">Font</label>
@@ -283,31 +312,31 @@ export function SettingsPanel({ settings, onLayerChange, onGlobalChange, onEnabl
                   onChange={(v) => onLayerChange(effectiveTab, { borderEnabled: v })}
                 />
               </div>
+
+              {/* Noise (global) */}
+              <p className="text-xs font-medium text-gray-500 pt-2">Noise (global)</p>
+              <SliderRow
+                label="Base noise"
+                value={settings.noiseLevel}
+                min={0}
+                max={60}
+                unit=""
+                onChange={(v) => onGlobalChange({ noiseLevel: v })}
+                tooltip="Adds a uniform random ±N offset to every pixel's RGB channels across the whole image. This makes removal harder because noise throughout the image prevents inpainting algorithms from cleanly reconstructing the pixels beneath the watermark."
+              />
+              <SliderRow
+                label="Watermark boost"
+                value={settings.noiseBoost}
+                min={0}
+                max={60}
+                unit=""
+                onChange={(v) => onGlobalChange({ noiseBoost: v })}
+                tooltip="Raises the noise amplitude over watermark pixels using a blurred alpha mask; text centers reach base + boost, fading to baseline at edges. This makes removal harder because the highest distortion is concentrated exactly where the text sits, making pixel reconstruction least reliable there."
+              />
             </div>
           )}
         </>
       )}
-
-      {/* Global noise section */}
-      <div className="px-4 py-4 space-y-4 border-t border-gray-200">
-        <p className="text-xs font-medium text-gray-500">Noise (global)</p>
-        <SliderRow
-          label="Base noise"
-          value={settings.noiseLevel}
-          min={0}
-          max={60}
-          unit=""
-          onChange={(v) => onGlobalChange({ noiseLevel: v })}
-        />
-        <SliderRow
-          label="Watermark boost"
-          value={settings.noiseBoost}
-          min={0}
-          max={60}
-          unit=""
-          onChange={(v) => onGlobalChange({ noiseBoost: v })}
-        />
-      </div>
     </div>
   );
 }
