@@ -120,9 +120,24 @@ function todayISO(): string {
   return new Date().toISOString().slice(0, 10);
 }
 
+const EXAMPLE_TEXTS: readonly [string, string][] = [
+  ["Sent to Hotel Patagonia", "For check in only"],
+  ["Sent to Unicorn Bank", "For mortgage application only"],
+  ["Sent to Sunset Apartments Management", "For rental application, not for framing"],
+  ["Sent to the Consulate of Somewhere Nice", "For visa application, misuse frowned upon"],
+  ["Sent to Acme Corp, Human Resources", "For employment verification only"],
+  ["Sent to City Hall, Permits Division", "For permit application, nothing more"],
+  ["Sent to Greene & Partners, Accountants", "For tax report purposes only"],
+];
+
+function randomExampleText(): string {
+  const [recipient, purpose] = EXAMPLE_TEXTS[Math.floor(Math.random() * EXAMPLE_TEXTS.length)];
+  return `${recipient}\nOn ${todayISO()}\n${purpose}`;
+}
+
 export function makeDefaultLayerSettings(): LayerSettings {
   return {
-    text: `Sent to Hotel Patagonia\nOn ${todayISO()}\nFor check in only`,
+    text: randomExampleText(),
     color: "#1714CC",
     opacity: 0.5,
     fontSize: 36,
