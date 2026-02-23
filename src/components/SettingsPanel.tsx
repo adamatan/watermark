@@ -38,10 +38,10 @@ function SliderRow({ label, value, min, max, step = 1, unit, onChange }: SliderR
 }
 
 const PRESET_STYLES: Record<PresetName, { dot: string; active: string; base: string }> = {
-  Blue:   { dot: "bg-blue-600",  active: "border-blue-600 text-blue-700 bg-blue-50",  base: "border-gray-200 text-gray-700 hover:border-blue-300 hover:bg-blue-50/50" },
-  Green:  { dot: "bg-green-600", active: "border-green-600 text-green-700 bg-green-50", base: "border-gray-200 text-gray-700 hover:border-green-300 hover:bg-green-50/50" },
-  Red:    { dot: "bg-red-500",   active: "border-red-500 text-red-700 bg-red-50",    base: "border-gray-200 text-gray-700 hover:border-red-300 hover:bg-red-50/50" },
-  Subtle: { dot: "bg-gray-400",  active: "border-gray-400 text-gray-700 bg-gray-50",  base: "border-gray-200 text-gray-600 hover:border-gray-400 hover:bg-gray-50" },
+  Default: { dot: "bg-blue-600",  active: "border-blue-600 text-blue-700 bg-blue-50",  base: "border-gray-200 text-gray-700 hover:border-blue-300 hover:bg-blue-50/50" },
+  Bold:    { dot: "bg-red-500",   active: "border-red-500 text-red-700 bg-red-50",    base: "border-gray-200 text-gray-700 hover:border-red-300 hover:bg-red-50/50" },
+  Subtle:  { dot: "bg-blue-400",  active: "border-blue-400 text-blue-600 bg-blue-50/60", base: "border-gray-200 text-gray-600 hover:border-blue-300 hover:bg-blue-50/40" },
+  Stamp:   { dot: "bg-red-500 border-2 border-dashed border-red-700", active: "border-red-500 text-red-700 bg-red-50", base: "border-gray-200 text-gray-700 hover:border-red-300 hover:bg-red-50/50" },
 };
 
 const PRESET_NAMES = Object.keys(PRESETS) as PresetName[];
@@ -55,7 +55,8 @@ function activePreset(settings: WatermarkSettings): PresetName | null {
       p.fontSize === settings.fontSize &&
       p.rotation === settings.rotation &&
       p.spacing === settings.spacing &&
-      p.fontFamily === settings.fontFamily
+      p.fontFamily === settings.fontFamily &&
+      p.borderEnabled === settings.borderEnabled
     ) {
       return name;
     }
@@ -168,7 +169,7 @@ export function SettingsPanel({ settings, onChange }: SettingsPanelProps) {
           <SliderRow
             label="Spacing"
             value={settings.spacing}
-            min={50}
+            min={0}
             max={500}
             unit="px"
             onChange={(v) => onChange({ spacing: v })}
@@ -207,6 +208,24 @@ export function SettingsPanel({ settings, onChange }: SettingsPanelProps) {
                 <div className="absolute top-0.5 left-0.5 w-4 h-4 bg-white rounded-full shadow transition-transform peer-checked:translate-x-5" />
               </div>
               <span className="text-xs text-gray-600">{settings.noiseEnabled ? "On" : "Off"}</span>
+            </label>
+          </div>
+
+          {/* Border toggle */}
+          <div className="flex items-center justify-between">
+            <label className="text-xs font-medium text-gray-600">Border frame</label>
+            <label className="flex items-center gap-2 cursor-pointer select-none">
+              <div className="relative">
+                <input
+                  type="checkbox"
+                  checked={settings.borderEnabled}
+                  onChange={(e) => onChange({ borderEnabled: e.target.checked })}
+                  className="sr-only peer"
+                />
+                <div className="w-10 h-5 bg-gray-200 rounded-full peer-checked:bg-blue-600 transition-colors" />
+                <div className="absolute top-0.5 left-0.5 w-4 h-4 bg-white rounded-full shadow transition-transform peer-checked:translate-x-5" />
+              </div>
+              <span className="text-xs text-gray-600">{settings.borderEnabled ? "On" : "Off"}</span>
             </label>
           </div>
         </div>

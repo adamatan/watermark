@@ -33,47 +33,52 @@ export function makeDefaultSettings(): WatermarkSettings {
     spacing: 100,
     fontFamily: "Arial",
     noiseEnabled: true,
+    borderEnabled: false,
   };
 }
 
 export const DEBOUNCE_MS = 150;
 export const JPEG_QUALITY = 0.92;
 
-export type PresetName = "Blue" | "Green" | "Red" | "Subtle";
+export type PresetName = "Default" | "Bold" | "Subtle" | "Stamp";
 
 type PresetOverrides = Omit<WatermarkSettings, "text" | "noiseEnabled">;
 
 export const PRESETS: Record<PresetName, PresetOverrides> = {
-  Blue: {
+  Default: {
     color: "#1714CC",
     opacity: 0.5,
     fontSize: 36,
     rotation: 26,
     spacing: 100,
     fontFamily: "Arial",
+    borderEnabled: false,
   },
-  Green: {
-    color: "#16A34A",
-    opacity: 0.5,
-    fontSize: 36,
-    rotation: 26,
-    spacing: 100,
-    fontFamily: "Arial",
-  },
-  Red: {
+  Bold: {
     color: "#DC2626",
     opacity: 0.5,
-    fontSize: 36,
+    fontSize: 50,
     rotation: 26,
-    spacing: 100,
+    spacing: 50,
     fontFamily: "Arial",
+    borderEnabled: false,
   },
   Subtle: {
-    color: "#6B7280",
-    opacity: 0.18,
-    fontSize: 28,
+    color: "#1714CC",
+    opacity: 0.20,
+    fontSize: 36,
     rotation: 26,
-    spacing: 130,
+    spacing: 60,
     fontFamily: "Arial",
+    borderEnabled: false,
+  },
+  Stamp: {
+    color: "#DC2626",
+    opacity: 0.5,
+    fontSize: 50,
+    rotation: 26,
+    spacing: 50,
+    fontFamily: "Arial",
+    borderEnabled: true,
   },
 };

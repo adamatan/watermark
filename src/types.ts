@@ -14,6 +14,7 @@ export interface WatermarkSettings {
   spacing: number;
   fontFamily: FontFamily;
   noiseEnabled: boolean;
+  borderEnabled: boolean;
 }
 
 export interface ImageFile {

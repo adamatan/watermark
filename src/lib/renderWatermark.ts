@@ -57,6 +57,17 @@ export function renderWatermark(
       lines.forEach((line, i) => {
         ctx.fillText(line, 0, blockTop + i * lineHeight);
       });
+      if (settings.borderEnabled) {
+        const pad = 8;
+        ctx.strokeStyle = settings.color;
+        ctx.lineWidth = settings.fontSize * 0.08;
+        ctx.strokeRect(
+          -maxLineWidth / 2 - pad,
+          -blockHeight / 2 - pad,
+          maxLineWidth + pad * 2,
+          blockHeight + pad * 2
+        );
+      }
       ctx.restore();
     }
   }
