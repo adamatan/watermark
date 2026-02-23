@@ -13,7 +13,8 @@ export interface WatermarkSettings {
   rotation: number;
   spacing: number;
   fontFamily: FontFamily;
-  noiseEnabled: boolean;
+  noiseLevel: number;
+  noiseBoost: number;
   borderEnabled: boolean;
 }
 

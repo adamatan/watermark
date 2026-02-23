@@ -19,7 +19,7 @@ export function renderWatermark(
   ctx.drawImage(image, 0, 0);
 
   if (!settings.text.trim()) {
-    if (settings.noiseEnabled) addNoise(ctx, w, h);
+    if (settings.noiseLevel > 0) addNoise(ctx, w, h, settings.noiseLevel, undefined, 0);
     return;
   }
 
@@ -75,7 +75,42 @@ export function renderWatermark(
   ctx.restore();
   ctx.globalAlpha = 1.0;
 
-  if (settings.noiseEnabled) {
-    addNoise(ctx, w, h);
+  if (settings.noiseLevel > 0 || settings.noiseBoost > 0) {
+    let boostMask: Uint8ClampedArray | undefined;
+
+    if (settings.noiseBoost > 0) {
+      // Render watermark text to an offscreen canvas (full opacity, no image)
+      const offscreen = document.createElement("canvas");
+      offscreen.width = w;
+      offscreen.height = h;
+      const offCtx = offscreen.getContext("2d")!;
+      offCtx.font = `${settings.fontSize}px "${settings.fontFamily}"`;
+      offCtx.fillStyle = "#000";
+      offCtx.textAlign = "center";
+      offCtx.textBaseline = "middle";
+      for (let y = startY; y < endY; y += cellHeight) {
+        for (let x = startX; x < endX; x += cellWidth) {
+          offCtx.save();
+          offCtx.translate(x, y);
+          offCtx.rotate(radians);
+          const blockTop = -blockHeight / 2 + lineHeight / 2;
+          lines.forEach((line, i) => {
+            offCtx.fillText(line, 0, blockTop + i * lineHeight);
+          });
+          offCtx.restore();
+        }
+      }
+
+      // Blur to create a soft proximity halo around the text
+      const blurCanvas = document.createElement("canvas");
+      blurCanvas.width = w;
+      blurCanvas.height = h;
+      const blurCtx = blurCanvas.getContext("2d")!;
+      blurCtx.filter = `blur(${settings.fontSize}px)`;
+      blurCtx.drawImage(offscreen, 0, 0);
+      boostMask = blurCtx.getImageData(0, 0, w, h).data;
+    }
+
+    addNoise(ctx, w, h, settings.noiseLevel, boostMask, settings.noiseBoost);
   }
 }

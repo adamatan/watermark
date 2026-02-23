@@ -32,7 +32,8 @@ export function makeDefaultSettings(): WatermarkSettings {
     rotation: 26,
     spacing: 100,
     fontFamily: "Arial",
-    noiseEnabled: true,
+    noiseLevel: 15,
+    noiseBoost: 0,
     borderEnabled: false,
   };
 }
@@ -42,7 +43,7 @@ export const JPEG_QUALITY = 0.92;
 
 export type PresetName = "Default" | "Bold" | "Subtle" | "Stamp";
 
-type PresetOverrides = Omit<WatermarkSettings, "text" | "noiseEnabled">;
+type PresetOverrides = Omit<WatermarkSettings, "text">;
 
 export const PRESETS: Record<PresetName, PresetOverrides> = {
   Default: {
@@ -52,6 +53,8 @@ export const PRESETS: Record<PresetName, PresetOverrides> = {
     rotation: 26,
     spacing: 100,
     fontFamily: "Arial",
+    noiseLevel: 15,
+    noiseBoost: 0,
     borderEnabled: false,
   },
   Bold: {
@@ -61,6 +64,8 @@ export const PRESETS: Record<PresetName, PresetOverrides> = {
     rotation: 26,
     spacing: 50,
     fontFamily: "Arial",
+    noiseLevel: 60,
+    noiseBoost: 60,
     borderEnabled: false,
   },
   Subtle: {
@@ -70,6 +75,8 @@ export const PRESETS: Record<PresetName, PresetOverrides> = {
     rotation: 26,
     spacing: 60,
     fontFamily: "Arial",
+    noiseLevel: 0,
+    noiseBoost: 20,
     borderEnabled: false,
   },
   Stamp: {
@@ -79,6 +86,8 @@ export const PRESETS: Record<PresetName, PresetOverrides> = {
     rotation: 26,
     spacing: 50,
     fontFamily: "Arial",
+    noiseLevel: 15,
+    noiseBoost: 40,
     borderEnabled: true,
   },
 };
