@@ -8,6 +8,7 @@ import { SettingsPanel } from "./components/SettingsPanel";
 import { ImageCard } from "./components/ImageCard";
 import { DownloadBar } from "./components/DownloadBar";
 import { Footer } from "./components/Footer";
+import { About } from "./components/About";
 
 function loadImageFromUrl(url: string, name: string): Promise<ImageFile> {
   return new Promise((resolve, reject) => {
@@ -27,6 +28,17 @@ function loadImageFromUrl(url: string, name: string): Promise<ImageFile> {
 
 export default function App() {
   const [imageFiles, setImageFiles] = useState<ImageFile[]>([]);
+  const [page, setPage] = useState(() =>
+    window.location.hash === "#/about" ? "about" : "home"
+  );
+
+  useEffect(() => {
+    function onHashChange() {
+      setPage(window.location.hash === "#/about" ? "about" : "home");
+    }
+    window.addEventListener("hashchange", onHashChange);
+    return () => window.removeEventListener("hashchange", onHashChange);
+  }, []);
   const { settings, updateLayerSettings, updateGlobalSettings, enableLayer2, disableLayer2, applyDoublePreset } = useWatermarkSettings();
   const debouncedSettings = useDebouncedValue(settings, DEBOUNCE_MS);
 
@@ -60,63 +72,78 @@ export default function App() {
       {/* Header */}
       <header className="bg-white border-b border-gray-200 px-6 py-4">
         <div className="max-w-7xl mx-auto flex items-center gap-3">
-          <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8 text-blue-600" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M2 21h16M4 17h12v4H4zM7 17v-3a3 3 0 0 1 6 0v3" />
-            <path fill="currentColor" stroke="none" d="M20 4s-2.5 3.5-2.5 5.5a2.5 2.5 0 0 0 5 0C22.5 7.5 20 4 20 4z" />
-          </svg>
-          <div>
-            <h1 className="text-lg font-bold text-gray-900 leading-none">Watermark</h1>
-            <p className="text-xs text-gray-500">Private, client-side image watermarking</p>
-          </div>
+          <a href="#/" className="flex items-center gap-3 hover:opacity-80 transition-opacity">
+            <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8 text-blue-600" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M2 21h16M4 17h12v4H4zM7 17v-3a3 3 0 0 1 6 0v3" />
+              <path fill="currentColor" stroke="none" d="M20 4s-2.5 3.5-2.5 5.5a2.5 2.5 0 0 0 5 0C22.5 7.5 20 4 20 4z" />
+            </svg>
+            <div className="text-left">
+              <h1 className="text-lg font-bold text-gray-900 leading-none">Watermark</h1>
+              <p className="text-xs text-gray-500">Fight identity theft. Watermark before you share.</p>
+            </div>
+          </a>
+          <div className="flex-1" />
+          <a
+            href="#/about"
+            className="text-sm text-gray-500 hover:text-gray-800 transition-colors"
+          >
+            About
+          </a>
         </div>
       </header>
 
       {/* Main */}
-      <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 py-8">
-        <div className="flex flex-col gap-6">
+      <main className="flex-1">
+        {page === "about" ? (
+          <About />
+        ) : (
+          <div className="max-w-7xl w-full mx-auto px-4 sm:px-6 py-8">
+            <div className="flex flex-col gap-6">
 
-          {/* Full-width drop zone */}
-          <DropZone onImagesAdd={addImages} hasImages={hasRealImages} />
+              {/* Full-width drop zone */}
+              <DropZone onImagesAdd={addImages} hasImages={hasRealImages} />
 
-          {/* Two-column layout: controls + image grid */}
-          {hasImages && (
-            <div className="flex flex-col lg:flex-row gap-6 items-start">
+              {/* Two-column layout: controls + image grid */}
+              {hasImages && (
+                <div className="flex flex-col lg:flex-row gap-6 items-start">
 
-              {/* Left column — controls */}
-              <div className="w-full lg:w-80 flex-shrink-0 space-y-4">
+                  {/* Left column — controls */}
+                  <div className="w-full lg:w-80 flex-shrink-0 space-y-4">
 
-                <DownloadBar imageFiles={imageFiles} settings={settings} />
+                    <DownloadBar imageFiles={imageFiles} settings={settings} />
 
-                <SettingsPanel
-                  settings={settings}
-                  onLayerChange={updateLayerSettings}
-                  onGlobalChange={updateGlobalSettings}
-                  onEnableLayer2={enableLayer2}
-                  onDisableLayer2={disableLayer2}
-                  onApplyDoublePreset={applyDoublePreset}
-                />
-              </div>
-
-              {/* Right column — image grid */}
-              <div className="flex-1 min-w-0">
-                <div
-                  className="grid gap-6"
-                  style={{ gridTemplateColumns: "repeat(auto-fill, minmax(min(100%, 380px), 1fr))" }}
-                >
-                  {imageFiles.map((imageFile, index) => (
-                    <ImageCard
-                      key={`${imageFile.name}-${index}`}
-                      imageFile={imageFile}
-                      settings={debouncedSettings}
-                      onRemove={() => removeImage(index)}
+                    <SettingsPanel
+                      settings={settings}
+                      onLayerChange={updateLayerSettings}
+                      onGlobalChange={updateGlobalSettings}
+                      onEnableLayer2={enableLayer2}
+                      onDisableLayer2={disableLayer2}
+                      onApplyDoublePreset={applyDoublePreset}
                     />
-                  ))}
-                </div>
-              </div>
-            </div>
-          )}
+                  </div>
 
-        </div>
+                  {/* Right column — image grid */}
+                  <div className="flex-1 min-w-0">
+                    <div
+                      className="grid gap-6"
+                      style={{ gridTemplateColumns: "repeat(auto-fill, minmax(min(100%, 380px), 1fr))" }}
+                    >
+                      {imageFiles.map((imageFile, index) => (
+                        <ImageCard
+                          key={`${imageFile.name}-${index}`}
+                          imageFile={imageFile}
+                          settings={debouncedSettings}
+                          onRemove={() => removeImage(index)}
+                        />
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              )}
+
+            </div>
+          </div>
+        )}
       </main>
 
       <Footer />

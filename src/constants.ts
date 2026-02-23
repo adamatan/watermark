@@ -122,7 +122,7 @@ function todayISO(): string {
 
 export function makeDefaultLayerSettings(): LayerSettings {
   return {
-    text: `Sent to [Company X]\nOn ${todayISO()}\nfor [Purpose]`,
+    text: `Sent to Hotel Patagonia\nOn ${todayISO()}\nFor check in only`,
     color: "#1714CC",
     opacity: 0.5,
     fontSize: 36,
